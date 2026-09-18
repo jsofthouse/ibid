@@ -1,0 +1,17 @@
+:root {
+    --color-primary: #17352A;
+    --color-accent: #B08D57;
+    --color-background: #F7F4EC;
+    --color-card: #FFFFFF;
+    --color-ink: #20241F;
+    --color-border: #E5E0CF;
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-ink);
+}
+
+.font-heading {
+    font-family: "Source Serif 4", serif;
+}
