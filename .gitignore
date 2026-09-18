@@ -19,6 +19,7 @@
 /public/hot
 /public/storage-karya/*
 !/public/storage-karya/.gitkeep
+!/public/storage-karya/.htaccess
 /storage/*.key
 /storage/pail
 /vendor

@@ -1,0 +1,5 @@
+# Folder ini hanya untuk file cover (gambar) yang divalidasi saat upload.
+# Blokir eksekusi script sebagai lapisan pertahanan tambahan.
+<FilesMatch "\.(php|phtml|php\d|pl|py|jsp|asp|aspx|sh|cgi|exe)$">
+    Require all denied
+</FilesMatch>
