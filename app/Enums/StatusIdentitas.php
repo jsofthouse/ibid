@@ -2,12 +2,9 @@
 
 namespace App\Enums;
 
-enum StatusKarya: string
+enum StatusIdentitas: string
 {
-    case Draft = 'draft';
-    case DalamProses = 'dalam_proses';
-    case Disetujui = 'disetujui';
-    case Diterbitkan = 'diterbitkan';
+    case BelumBerIbid = 'belum_ber_ibid';
     case IbidDiterbitkan = 'ibid_diterbitkan';
     case Dipublikasikan = 'dipublikasikan';
     case TidakAktif = 'tidak_aktif';
@@ -16,10 +13,7 @@ enum StatusKarya: string
     public function label(): string
     {
         return match ($this) {
-            self::Draft => 'Draft',
-            self::DalamProses => 'Dalam Proses',
-            self::Disetujui => 'Disetujui',
-            self::Diterbitkan => 'Diterbitkan',
+            self::BelumBerIbid => 'Belum Ber-IBID',
             self::IbidDiterbitkan => 'IBID Diterbitkan',
             self::Dipublikasikan => 'Dipublikasikan',
             self::TidakAktif => 'Tidak Aktif',

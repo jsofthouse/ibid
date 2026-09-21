@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Table('audit_log')]
-#[Fillable(['user_id', 'aksi', 'entitas', 'entitas_id', 'data_before', 'data_after', 'ip_address'])]
+#[Fillable(['user_id', 'aksi', 'entitas', 'entitas_id', 'data_before', 'data_after', 'keterangan', 'ip_address'])]
 class AuditLog extends Model
 {
     public $timestamps = false;

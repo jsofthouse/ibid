@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use App\Enums\StatusKarya;
+use App\Enums\StatusIdentitas;
+use App\Enums\StatusProduksi;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -13,9 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Table('karya')]
 #[Fillable([
-    'ibid_number', 'isbn', 'judul', 'subjudul', 'kategori_id',
+    'isbn', 'judul', 'subjudul', 'kategori_id',
     'tahun_terbit', 'kota_terbit', 'edisi', 'bahasa', 'jumlah_halaman',
-    'ukuran', 'sinopsis', 'kata_kunci', 'cover_path', 'status',
+    'ukuran', 'sinopsis', 'kata_kunci', 'cover_path', 'tampil_pra_terbit',
     'tanggal_dibuat', 'tanggal_diterbitkan',
 ])]
 class Karya extends Model
@@ -25,9 +26,13 @@ class Karya extends Model
     protected function casts(): array
     {
         return [
-            'status' => StatusKarya::class,
+            'status_produksi' => StatusProduksi::class,
+            'status_identitas' => StatusIdentitas::class,
+            'tampil_pra_terbit' => 'boolean',
             'tanggal_dibuat' => 'date',
             'tanggal_diterbitkan' => 'date',
+            'tanggal_ibid' => 'date',
+            'tanggal_dipublikasikan' => 'date',
         ];
     }
 
