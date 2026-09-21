@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+    --color-primary: #17352A;
+    --color-accent: #B08D57;
+    --color-background: #F7F4EC;
+    --color-card: #FFFFFF;
+    --color-ink: #20241F;
+    --color-line: #E5E0CF;
+
+    --font-serif: "Source Serif 4", serif;
+    --font-sans: "Work Sans", sans-serif;
+}

@@ -7,6 +7,27 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Build CSS (Tailwind standalone CLI)
+
+Project ini pakai Tailwind CSS v4 **tanpa Node/Vite** — compile lokal pakai
+[standalone CLI](https://tailwindcss.com/blog/standalone-cli) binary, hasilnya
+(`public/css/app.css`) di-commit ke git. Tidak ada build step di server.
+
+1. Download binary CLI sesuai OS dari [rilis tailwindcss](https://github.com/tailwindlabs/tailwindcss/releases)
+   (contoh Windows: `tailwindcss-windows-x64.exe`), simpan sebagai `bin/tailwindcss.exe`
+   (sudah di-gitignore, jangan di-commit).
+2. Setiap ada perubahan class Tailwind di Blade atau token warna/font di
+   `resources/css/app.css`, jalankan:
+
+   ```bash
+   ./bin/tailwindcss.exe -i resources/css/app.css -o public/css/app.css --minify
+   ```
+
+3. Commit `public/css/app.css` yang baru.
+
+Token warna & font (PRD §8) didefinisikan di `resources/css/app.css` lewat
+`@theme`, bukan lewat `tailwind.config.js`.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
