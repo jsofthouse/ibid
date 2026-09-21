@@ -8,7 +8,10 @@ use App\Http\Controllers\Admin\KaryaIbidController;
 use App\Http\Controllers\Admin\KaryaStatusController;
 use App\Http\Controllers\Admin\KategoriController;
 use App\Http\Controllers\Admin\LogController;
+use App\Http\Controllers\Admin\LupaPasswordController;
 use App\Http\Controllers\Admin\OrangController;
+use App\Http\Controllers\Admin\PasswordController;
+use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Publik\BukuController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,11 +27,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest')->group(function () {
         Route::get('login', [AuthController::class, 'create'])->name('login');
         Route::post('login', [AuthController::class, 'store']);
+
+        Route::get('lupa-password', [LupaPasswordController::class, 'create'])->name('lupa-password');
+        Route::post('lupa-password', [LupaPasswordController::class, 'store'])
+            ->middleware('throttle:6,1')
+            ->name('lupa-password.kirim');
+
+        Route::get('reset-password/{token}', [ResetPasswordController::class, 'create'])->name('reset-password');
+        Route::post('reset-password', [ResetPasswordController::class, 'store'])
+            ->middleware('throttle:6,1')
+            ->name('reset-password.simpan');
     });
 
     Route::middleware('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'destroy'])->name('logout');
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('password', [PasswordController::class, 'edit'])->name('password.edit');
+        Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
         Route::get('log', [LogController::class, 'index'])->name('log');
 

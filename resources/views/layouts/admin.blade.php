@@ -11,13 +11,18 @@
             <h1 class="font-serif text-lg font-semibold text-primary">@yield('page-title', 'Dashboard')</h1>
 
             @auth
-                <form method="POST" action="{{ route('admin.logout') }}" class="flex items-center gap-3">
-                    @csrf
+                <div class="flex items-center gap-3">
                     <span class="text-sm text-ink/70">{{ auth()->user()->name }}</span>
-                    <button type="submit" class="text-sm font-medium text-accent hover:underline">
-                        Logout
-                    </button>
-                </form>
+                    <a href="{{ route('admin.password.edit') }}" class="text-sm font-medium text-accent hover:underline">
+                        Ganti Password
+                    </a>
+                    <form method="POST" action="{{ route('admin.logout') }}">
+                        @csrf
+                        <button type="submit" class="text-sm font-medium text-accent hover:underline">
+                            Logout
+                        </button>
+                    </form>
+                </div>
             @endauth
         </header>
 

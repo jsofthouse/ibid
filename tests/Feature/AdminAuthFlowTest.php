@@ -16,6 +16,14 @@ class AdminAuthFlowTest extends TestCase
         $this->get('/admin/dashboard')->assertRedirect(route('admin.login'));
     }
 
+    public function test_halaman_login_menampilkan_pesan_status_dari_session(): void
+    {
+        $response = $this->withSession(['status' => 'Password berhasil direset, silakan login.'])
+            ->get('/admin/login');
+
+        $response->assertOk()->assertSee('Password berhasil direset, silakan login.');
+    }
+
     public function test_superadmin_can_login_and_reach_dashboard(): void
     {
         $user = User::factory()->create(['password' => bcrypt('rahasia123')]);
