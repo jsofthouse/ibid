@@ -79,6 +79,41 @@
         </div>
     </section>
 
+    {{-- IBID & QR --}}
+    <section class="bg-card border border-line rounded-lg p-6 mb-6">
+        <h3 class="font-serif text-lg font-semibold text-primary mb-4">Nomor IBID &amp; QR</h3>
+
+        @if ($karya->status_identitas === \App\Enums\StatusIdentitas::BelumBerIbid)
+            <p class="text-sm text-ink/70 mb-3">
+                Karya ini belum punya nomor IBID. Generate setelah data judul, kategori, dan minimal satu penulis terisi.
+            </p>
+            <form method="POST" action="{{ route('admin.karya.generate-ibid', $karya) }}"
+                  onsubmit="return confirm('Generate nomor IBID untuk karya ini? Nomor yang sudah digenerate tidak bisa diubah/dipakai ulang.');">
+                @csrf
+                <button type="submit" class="rounded bg-primary text-background text-sm font-medium px-4 py-1.5 hover:opacity-90">
+                    Generate IBID
+                </button>
+            </form>
+        @else
+            <p class="text-sm"><span class="text-ink/50">Nomor IBID:</span> <span class="font-medium">{{ $karya->ibid_number }}</span></p>
+            <p class="text-sm text-ink/50 mt-1">Digenerate {{ $karya->tanggal_ibid?->format('d/m/Y') }}</p>
+            <div class="flex gap-3 mt-3">
+                <a href="{{ route('admin.karya.qr-svg', $karya) }}" download="qr-{{ $karya->ibid_number }}.svg"
+                   class="rounded border border-line text-sm px-4 py-1.5 hover:bg-background">
+                    Unduh QR (SVG)
+                </a>
+                <a href="{{ route('admin.karya.qr-png', $karya) }}" download="qr-{{ $karya->ibid_number }}.png"
+                   class="rounded border border-line text-sm px-4 py-1.5 hover:bg-background">
+                    Unduh QR (PNG)
+                </a>
+                <a href="{{ route('buku.show', $karya->ibid_number) }}" target="_blank" rel="noopener"
+                   class="rounded border border-line text-sm px-4 py-1.5 hover:bg-background">
+                    Lihat Halaman Publik
+                </a>
+            </div>
+        @endif
+    </section>
+
     {{-- Ubah Status --}}
     <section class="bg-card border border-line rounded-lg p-6 mb-6">
         <h3 class="font-serif text-lg font-semibold text-primary mb-4">Ubah Status</h3>
