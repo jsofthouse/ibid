@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\StatusIdentitas;
 use App\Enums\StatusProduksi;
+use App\Observers\AuditObserver;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Table('karya')]
+#[ObservedBy(AuditObserver::class)]
 #[Fillable([
     'isbn', 'judul', 'subjudul', 'kategori_id',
     'tahun_terbit', 'kota_terbit', 'edisi', 'bahasa', 'jumlah_halaman',

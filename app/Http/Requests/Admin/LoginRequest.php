@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\User;
+use App\Services\AuditService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -31,12 +33,27 @@ class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
+            $targetUser = User::where('email', $this->string('email'))->first();
+
+            app(AuditService::class)->catat(
+                aksi: 'login_gagal',
+                entitas: 'auth',
+                entitasId: $targetUser?->id,
+                dataAfter: ['email' => $this->string('email')->toString()],
+            );
+
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        app(AuditService::class)->catat(
+            aksi: 'login_berhasil',
+            entitas: 'auth',
+            entitasId: Auth::id(),
+        );
     }
 
     public function ensureIsNotRateLimited(): void

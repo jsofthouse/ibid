@@ -8,6 +8,11 @@
             Dashboard
         </a>
 
+        <a href="{{ route('admin.log') }}"
+           class="block rounded px-3 py-2 {{ request()->routeIs('admin.log') ? 'bg-white/10 font-medium' : 'hover:bg-white/5' }}">
+            Log Audit
+        </a>
+
         {{-- Menu Data Karya, Pengajuan, Orang, Kategori, Laporan, Pengaturan menyusul di Fase 2. --}}
     </nav>
 </aside>
