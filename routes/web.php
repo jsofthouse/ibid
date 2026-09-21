@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FileStreamController;
+use App\Http\Controllers\Admin\KaryaController;
+use App\Http\Controllers\Admin\KaryaStatusController;
 use App\Http\Controllers\Admin\KategoriController;
 use App\Http\Controllers\Admin\LogController;
 use App\Http\Controllers\Admin\OrangController;
@@ -26,6 +28,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::resource('kategori', KategoriController::class)->except('show');
         Route::resource('orang', OrangController::class)->except('show');
+
+        Route::resource('karya', KaryaController::class);
+        Route::post('karya/{karya}/status-produksi', [KaryaStatusController::class, 'ubahProduksi'])
+            ->name('karya.status-produksi');
+        Route::post('karya/{karya}/status-identitas', [KaryaStatusController::class, 'ubahIdentitas'])
+            ->name('karya.status-identitas');
+        Route::post('karya/{karya}/batalkan-penerbitan', [KaryaStatusController::class, 'batalkan'])
+            ->name('karya.batalkan-penerbitan');
 
         Route::get('berkas/{path}', [FileStreamController::class, 'show'])
             ->where('path', '.*')

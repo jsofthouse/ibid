@@ -99,6 +99,16 @@ class CoverUploadService
         ];
     }
 
+    /**
+     * Turunkan path thumbnail dari path cover - penamaan berpasangan
+     * (cover/{acak}.jpg <-> cover/thumb/{acak}.jpg) dibuat deterministik
+     * di unggah() supaya tidak perlu kolom database terpisah.
+     */
+    public function thumbnailUntuk(string $coverPath): string
+    {
+        return Str::replaceFirst(self::DIREKTORI_COVER.'/', self::DIREKTORI_THUMBNAIL.'/', $coverPath);
+    }
+
     public function hapus(?string $coverPath, ?string $thumbnailPath = null): void
     {
         $disk = Storage::disk(self::DISK);
