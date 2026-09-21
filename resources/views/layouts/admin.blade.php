@@ -22,6 +22,18 @@
         </header>
 
         <main class="flex-1 p-6">
+            @if (session('sukses'))
+                <div class="mb-4 rounded border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary">
+                    {{ session('sukses') }}
+                </div>
+            @endif
+
+            @if (session('gagal'))
+                <div class="mb-4 rounded border border-accent/40 bg-accent/10 px-3 py-2 text-sm text-ink">
+                    {{ session('gagal') }}
+                </div>
+            @endif
+
             @yield('content')
         </main>
     </div>

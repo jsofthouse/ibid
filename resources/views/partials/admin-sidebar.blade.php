@@ -8,11 +8,21 @@
             Dashboard
         </a>
 
+        <a href="{{ route('admin.kategori.index') }}"
+           class="block rounded px-3 py-2 {{ request()->routeIs('admin.kategori.*') ? 'bg-white/10 font-medium' : 'hover:bg-white/5' }}">
+            Kategori
+        </a>
+
+        <a href="{{ route('admin.orang.index') }}"
+           class="block rounded px-3 py-2 {{ request()->routeIs('admin.orang.*') ? 'bg-white/10 font-medium' : 'hover:bg-white/5' }}">
+            Orang
+        </a>
+
         <a href="{{ route('admin.log') }}"
            class="block rounded px-3 py-2 {{ request()->routeIs('admin.log') ? 'bg-white/10 font-medium' : 'hover:bg-white/5' }}">
             Log Audit
         </a>
 
-        {{-- Menu Data Karya, Pengajuan, Orang, Kategori, Laporan, Pengaturan menyusul di Fase 2. --}}
+        {{-- Menu Data Karya, Pengajuan, Laporan, Pengaturan menyusul di Fase 2. --}}
     </nav>
 </aside>

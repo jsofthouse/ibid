@@ -3,7 +3,9 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FileStreamController;
+use App\Http\Controllers\Admin\KategoriController;
 use App\Http\Controllers\Admin\LogController;
+use App\Http\Controllers\Admin\OrangController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,6 +23,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::get('log', [LogController::class, 'index'])->name('log');
+
+        Route::resource('kategori', KategoriController::class)->except('show');
+        Route::resource('orang', OrangController::class)->except('show');
 
         Route::get('berkas/{path}', [FileStreamController::class, 'show'])
             ->where('path', '.*')
