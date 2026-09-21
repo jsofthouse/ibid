@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Actions\GenerateIbidAction;
 use App\Enums\StatusIdentitas;
 use App\Enums\StatusProduksi;
 use App\Exceptions\TransisiStatusException;
@@ -10,7 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class StatusKaryaService
 {
-    public function __construct(private readonly AuditService $auditService) {}
+    public function __construct(
+        private readonly AuditService $auditService,
+        private readonly GenerateIbidAction $generateIbidAction,
+    ) {}
 
     public function ubahStatusProduksi(Karya $karya, StatusProduksi $ke, ?string $alasan = null): Karya
     {
@@ -41,6 +45,11 @@ class StatusKaryaService
             }
 
             $karya->status_produksi = $ke;
+
+            if ($ke === StatusProduksi::Diterbitkan) {
+                $karya->tanggal_diterbitkan = now()->toDateString();
+            }
+
             Karya::withoutEvents(fn () => $karya->save());
 
             $this->auditService->catatModel(
@@ -50,6 +59,19 @@ class StatusKaryaService
                 dataAfter: ['status_produksi' => $ke->value],
                 keterangan: $alasan,
             );
+
+            // Begitu produksi Disetujui, IBID langsung digenerate supaya QR
+            // sudah tersedia sebelum masuk proses editing/layout (PRD §5).
+            // Kalau data belum cukup (mis. belum ada penulis), transisi
+            // status tetap jalan - superadmin tinggal generate manual nanti
+            // begitu datanya lengkap.
+            if ($ke === StatusProduksi::Disetujui && $karya->status_identitas === StatusIdentitas::BelumBerIbid) {
+                try {
+                    $karya = $this->generateIbidAction->execute($karya);
+                } catch (TransisiStatusException) {
+                    // Sengaja diabaikan - lihat catatan di atas.
+                }
+            }
 
             return $karya;
         });

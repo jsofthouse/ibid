@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PeranOrang;
 use App\Enums\StatusIdentitas;
 use App\Enums\StatusProduksi;
 use App\Models\Karya;
 use App\Models\Kategori;
+use App\Models\Orang;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -41,6 +43,21 @@ class KaryaStatusControllerTest extends TestCase
         $response->assertRedirect(route('admin.karya.show', $karya));
         $response->assertSessionHas('sukses');
         $this->assertSame(StatusProduksi::Disetujui, $karya->fresh()->status_produksi);
+    }
+
+    public function test_pesan_sukses_menyebutkan_nomor_ibid_kalau_otomatis_tergenerate(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $karya = $this->buatKarya();
+        $penulis = Orang::create(['nama' => 'Penulis Uji']);
+        $karya->daftarOrang()->attach($penulis->id, ['role' => PeranOrang::Penulis->value]);
+
+        $response = $this->post(route('admin.karya.status-produksi', $karya), [
+            'status_produksi' => StatusProduksi::Disetujui->value,
+        ]);
+
+        $response->assertSessionHas('sukses', fn ($pesan) => str_contains($pesan, 'otomatis digenerate')
+            && str_contains($pesan, $karya->fresh()->ibid_number));
     }
 
     public function test_ubah_status_produksi_mundur_tanpa_alasan_ditolak_form_request(): void

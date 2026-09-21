@@ -31,18 +31,46 @@ enum StatusProduksi: string
      */
     public function allowedTransitions(): array
     {
-        return match ($this) {
-            self::Draft => [self::Disetujui, self::Dibatalkan],
-            self::Disetujui => [self::DalamProses, self::Draft, self::Dibatalkan],
-            self::DalamProses => [self::Diterbitkan, self::Disetujui, self::Dibatalkan],
-            self::Diterbitkan => [self::DalamProses],
-            self::Dibatalkan => [],
-        };
+        $bisaDibatalkan = in_array($this, [self::Draft, self::Disetujui, self::DalamProses], true);
+
+        return array_values(array_filter([
+            $this->statusMaju(),
+            $this->statusMundur(),
+            $bisaDibatalkan ? self::Dibatalkan : null,
+        ]));
     }
 
     public function bisaBertransisiKe(self $ke): bool
     {
         return in_array($ke, $this->allowedTransitions(), true);
+    }
+
+    /**
+     * Status satu langkah ke depan (alur normal, tidak butuh alasan) - null
+     * kalau sudah di ujung (Diterbitkan) atau terminal (Dibatalkan).
+     */
+    public function statusMaju(): ?self
+    {
+        return match ($this) {
+            self::Draft => self::Disetujui,
+            self::Disetujui => self::DalamProses,
+            self::DalamProses => self::Diterbitkan,
+            self::Diterbitkan, self::Dibatalkan => null,
+        };
+    }
+
+    /**
+     * Status satu langkah ke belakang (koreksi, butuh alasan) - null kalau
+     * sudah di awal (Draft) atau terminal (Dibatalkan).
+     */
+    public function statusMundur(): ?self
+    {
+        return match ($this) {
+            self::Draft, self::Dibatalkan => null,
+            self::Disetujui => self::Draft,
+            self::DalamProses => self::Disetujui,
+            self::Diterbitkan => self::DalamProses,
+        };
     }
 
     /**

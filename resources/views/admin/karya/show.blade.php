@@ -85,7 +85,9 @@
 
         @if ($karya->status_identitas === \App\Enums\StatusIdentitas::BelumBerIbid)
             <p class="text-sm text-ink/70 mb-3">
-                Karya ini belum punya nomor IBID. Generate setelah data judul, kategori, dan minimal satu penulis terisi.
+                Karya ini belum punya nomor IBID. Normalnya IBID digenerate otomatis begitu status produksi
+                dipindah ke Disetujui - tombol di bawah cuma jaga-jaga kalau saat itu datanya belum lengkap
+                (judul, kategori, dan minimal satu penulis wajib terisi).
             </p>
             <form method="POST" action="{{ route('admin.karya.generate-ibid', $karya) }}"
                   onsubmit="return confirm('Generate nomor IBID untuk karya ini? Nomor yang sudah digenerate tidak bisa diubah/dipakai ulang.');">
@@ -119,28 +121,49 @@
         <h3 class="font-serif text-lg font-semibold text-primary mb-4">Ubah Status</h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            @php $tujuanProduksi = collect($karya->status_produksi->allowedTransitions())->reject(fn ($s) => $s === \App\Enums\StatusProduksi::Dibatalkan); @endphp
-            @if ($tujuanProduksi->isNotEmpty())
-                <form method="POST" action="{{ route('admin.karya.status-produksi', $karya) }}" class="space-y-2">
-                    @csrf
-                    <label class="block text-sm font-medium">Status Produksi</label>
-                    <select name="status_produksi" class="w-full rounded border border-line px-3 py-2 text-sm">
-                        @foreach ($tujuanProduksi as $status)
-                            <option value="{{ $status->value }}">{{ $status->label() }}</option>
-                        @endforeach
-                    </select>
-                    <textarea name="alasan" rows="2" placeholder="Alasan (wajib untuk perubahan mundur)"
-                              class="w-full rounded border border-line px-3 py-2 text-sm">{{ old('alasan') }}</textarea>
+            @php
+                $statusMaju = $karya->status_produksi->statusMaju();
+                $statusMundur = $karya->status_produksi->statusMundur();
+            @endphp
+            @if ($statusMaju || $statusMundur)
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Status Produksi</label>
+                        <p class="text-sm text-ink/50">Sekarang: {{ $karya->status_produksi->label() }}</p>
+                    </div>
+
+                    @if ($statusMaju)
+                        <form method="POST" action="{{ route('admin.karya.status-produksi', $karya) }}">
+                            @csrf
+                            <input type="hidden" name="status_produksi" value="{{ $statusMaju->value }}">
+                            <button type="submit" class="rounded bg-primary text-background text-sm font-medium px-4 py-1.5 hover:opacity-90">
+                                Lanjutkan ke {{ $statusMaju->label() }}
+                            </button>
+                        </form>
+                    @endif
+
+                    @if ($statusMundur)
+                        <details class="text-sm">
+                            <summary class="cursor-pointer text-ink/60">Kembalikan ke {{ $statusMundur->label() }} (koreksi)</summary>
+                            <form method="POST" action="{{ route('admin.karya.status-produksi', $karya) }}" class="space-y-2 mt-2">
+                                @csrf
+                                <input type="hidden" name="status_produksi" value="{{ $statusMundur->value }}">
+                                <textarea name="alasan" rows="2" placeholder="Alasan mundur (wajib)" required
+                                          class="w-full rounded border border-line px-3 py-2 text-sm">{{ old('alasan') }}</textarea>
+                                <button type="submit" class="rounded border border-line text-sm px-4 py-1.5 hover:bg-background">
+                                    Kembalikan ke {{ $statusMundur->label() }}
+                                </button>
+                            </form>
+                        </details>
+                    @endif
+
                     @error('status_produksi')
                         <p class="text-sm text-red-700">{{ $message }}</p>
                     @enderror
                     @error('alasan')
                         <p class="text-sm text-red-700">{{ $message }}</p>
                     @enderror
-                    <button type="submit" class="rounded bg-primary text-background text-sm font-medium px-4 py-1.5 hover:opacity-90">
-                        Ubah Status Produksi
-                    </button>
-                </form>
+                </div>
             @endif
 
             @if ($karya->status_identitas !== \App\Enums\StatusIdentitas::BelumBerIbid)

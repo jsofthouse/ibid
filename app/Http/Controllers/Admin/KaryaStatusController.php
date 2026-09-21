@@ -19,8 +19,10 @@ class KaryaStatusController extends Controller
 
     public function ubahProduksi(UbahStatusProduksiRequest $request, Karya $karya): RedirectResponse
     {
+        $sudahBerIbidSebelumnya = $karya->status_identitas !== StatusIdentitas::BelumBerIbid;
+
         try {
-            $this->statusKaryaService->ubahStatusProduksi(
+            $hasil = $this->statusKaryaService->ubahStatusProduksi(
                 $karya,
                 StatusProduksi::from($request->validated('status_produksi')),
                 $request->validated('alasan'),
@@ -29,7 +31,13 @@ class KaryaStatusController extends Controller
             return redirect()->route('admin.karya.show', $karya)->with('gagal', $e->getMessage());
         }
 
-        return redirect()->route('admin.karya.show', $karya)->with('sukses', 'Status produksi berhasil diubah.');
+        $pesan = 'Status produksi berhasil diubah.';
+
+        if (! $sudahBerIbidSebelumnya && $hasil->ibid_number) {
+            $pesan .= ' Nomor IBID otomatis digenerate: '.$hasil->ibid_number.'.';
+        }
+
+        return redirect()->route('admin.karya.show', $karya)->with('sukses', $pesan);
     }
 
     public function ubahIdentitas(UbahStatusIdentitasRequest $request, Karya $karya): RedirectResponse

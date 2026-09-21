@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PeranOrang;
 use App\Enums\StatusIdentitas;
 use App\Enums\StatusProduksi;
 use App\Exceptions\TransisiStatusException;
 use App\Models\AuditLog;
 use App\Models\Karya;
 use App\Models\Kategori;
+use App\Models\Orang;
 use App\Services\StatusKaryaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -58,6 +60,44 @@ class StatusKaryaServiceTest extends TestCase
             'entitas_id' => $karya->id,
             'keterangan' => null,
         ]);
+    }
+
+    public function test_pindah_ke_diterbitkan_mengisi_tanggal_diterbitkan_otomatis(): void
+    {
+        $karya = $this->buatKarya();
+        $karya->forceFill(['status_produksi' => StatusProduksi::DalamProses])->save();
+
+        $this->assertNull($karya->fresh()->tanggal_diterbitkan);
+
+        $hasil = $this->service->ubahStatusProduksi($karya->fresh(), StatusProduksi::Diterbitkan);
+
+        $this->assertSame(now()->toDateString(), $hasil->fresh()->tanggal_diterbitkan->toDateString());
+    }
+
+    public function test_pindah_ke_disetujui_otomatis_generate_ibid_kalau_data_lengkap(): void
+    {
+        $karya = $this->buatKarya();
+        $penulis = Orang::create(['nama' => 'Penulis Uji']);
+        $karya->daftarOrang()->attach($penulis->id, ['role' => PeranOrang::Penulis->value]);
+
+        $hasil = $this->service->ubahStatusProduksi($karya->fresh(), StatusProduksi::Disetujui);
+
+        $this->assertSame(StatusProduksi::Disetujui, $hasil->status_produksi);
+        $this->assertSame(StatusIdentitas::IbidDiterbitkan, $hasil->status_identitas);
+        $this->assertNotNull($hasil->ibid_number);
+        $this->assertDatabaseHas('audit_log', ['aksi' => 'ubah_status_produksi', 'entitas_id' => $karya->id]);
+        $this->assertDatabaseHas('audit_log', ['aksi' => 'generate_ibid', 'entitas_id' => $karya->id]);
+    }
+
+    public function test_pindah_ke_disetujui_tanpa_penulis_tetap_berhasil_tapi_ibid_belum_terbit(): void
+    {
+        $karya = $this->buatKarya();
+
+        $hasil = $this->service->ubahStatusProduksi($karya, StatusProduksi::Disetujui);
+
+        $this->assertSame(StatusProduksi::Disetujui, $hasil->status_produksi);
+        $this->assertSame(StatusIdentitas::BelumBerIbid, $hasil->status_identitas);
+        $this->assertNull($hasil->ibid_number);
     }
 
     public function test_lompat_status_ditolak(): void
