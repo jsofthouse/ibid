@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PasswordController;
 use App\Http\Controllers\Admin\PengajuanController;
 use App\Http\Controllers\Admin\PengajuanStatusController;
 use App\Http\Controllers\Admin\ResetPasswordController;
+use App\Http\Controllers\Publik\AjukanPenerbitanController;
 use App\Http\Controllers\Publik\BukuController;
 use App\Http\Controllers\Publik\CariController;
 use App\Http\Controllers\Publik\HomeController;
@@ -29,6 +30,12 @@ Route::get('cari', [CariController::class, 'index'])
 Route::get('verifikasi', [VerifikasiController::class, 'index'])
     ->middleware('throttle:60,1')
     ->name('verifikasi');
+
+Route::get('ajukan-penerbitan', [AjukanPenerbitanController::class, 'create'])
+    ->name('ajukan-penerbitan');
+Route::post('ajukan-penerbitan', [AjukanPenerbitanController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('ajukan-penerbitan.store');
 
 Route::get('buku/{ibid}', [BukuController::class, 'show'])
     ->middleware('throttle:60,1')

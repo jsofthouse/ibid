@@ -23,7 +23,7 @@
                class="rounded-full bg-primary text-background text-sm font-medium px-5 py-2 hover:opacity-90">
                 Masuk
             </a>
-            <a href="/ajukan-penerbitan"
+            <a href="{{ route('ajukan-penerbitan') }}"
                class="rounded-full border border-primary text-primary text-sm font-medium px-5 py-2 hover:bg-primary/5">
                 Daftarkan Karya
             </a>
