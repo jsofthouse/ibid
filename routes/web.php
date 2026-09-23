@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\LogController;
 use App\Http\Controllers\Admin\LupaPasswordController;
 use App\Http\Controllers\Admin\OrangController;
 use App\Http\Controllers\Admin\PasswordController;
+use App\Http\Controllers\Admin\PengajuanController;
+use App\Http\Controllers\Admin\PengajuanStatusController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Publik\BukuController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +52,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::resource('kategori', KategoriController::class)->except('show');
         Route::resource('orang', OrangController::class)->except('show');
+
+        Route::resource('pengajuan', PengajuanController::class)->only(['index', 'show']);
+        Route::post('pengajuan/{pengajuan}/status', [PengajuanStatusController::class, 'ubah'])
+            ->name('pengajuan.status');
 
         Route::resource('karya', KaryaController::class);
         Route::post('karya/{karya}/status-produksi', [KaryaStatusController::class, 'ubahProduksi'])
