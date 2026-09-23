@@ -9,11 +9,11 @@
                class="pb-1 border-b-2 {{ request()->routeIs('cari') ? 'border-primary font-medium text-primary' : 'border-transparent text-ink/80 hover:text-primary' }}">
                 Cari IBID
             </a>
-            <a href="/tentang"
-               class="pb-1 border-b-2 {{ request()->is('tentang') ? 'border-primary font-medium text-primary' : 'border-transparent text-ink/80 hover:text-primary' }}">
+            <a href="{{ route('tentang') }}"
+               class="pb-1 border-b-2 {{ request()->routeIs('tentang') ? 'border-primary font-medium text-primary' : 'border-transparent text-ink/80 hover:text-primary' }}">
                 Tentang
             </a>
-            <a href="/tentang" class="pb-1 border-b-2 border-transparent text-ink/80 hover:text-primary">
+            <a href="{{ route('tentang') }}" class="pb-1 border-b-2 border-transparent text-ink/80 hover:text-primary">
                 Kontak
             </a>
         </nav>
