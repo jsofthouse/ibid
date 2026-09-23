@@ -95,4 +95,4 @@ Aturan ketat:
 
 # Pertanyaan terbuka (blocking sebelum langkah terkait)
 - Langkah 2: pemetaan link nav "Kontak", tombol "Masuk", tombol "Daftarkan Karya", dan perilaku search bar hero (submit ke `/cari?q=...` atau visual saja) — tanya Jo sebelum eksekusi.
-- Langkah 2: lokasi/akses file referensi "sampel tampilan 3.jpeg" perlu dipastikan sebelum mulai (project file claude.ai, bukan di filesystem lokal per pengecekan awal) — konfirmasi ke Jo cara aksesnya.
+- Langkah 2: file referensi "sampel tampilan 3.jpeg" ditemukan di `OneDrive/Documents/00 PROYEK/03 IBID Irfani/sampel tampilan/sampel tampilan 3.jpeg` (working directory tambahan sesi ini) — sudah bisa diakses, tidak lagi blocking.
