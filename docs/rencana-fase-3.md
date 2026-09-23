@@ -1,6 +1,6 @@
 ---
 title: IBID — Rencana Fase 3 (Sisi Publik + Manajemen Pengajuan Admin)
-status: breakdown disepakati, siap eksekusi — jalan per langkah dengan konfirmasi Jo di tiap langkah
+status: SELESAI & di-push ke main (langkah 0-6, commit 566fc02..e02e8b4) - 237/237 test hijau, Pint bersih
 tanggal: 2026-09-23
 ---
 
@@ -93,6 +93,23 @@ Aturan ketat:
 - Tidak ada mass-assignment ke kolom terlarang (`status`, `karya_id` di pengajuan; `status_produksi`, `status_identitas`, `ibid_number` di karya).
 - Form Request untuk semua input publik & admin baru; CSRF aktif di semua form.
 
-# Pertanyaan terbuka (blocking sebelum langkah terkait)
-- Langkah 2: pemetaan link nav "Kontak", tombol "Masuk", tombol "Daftarkan Karya", dan perilaku search bar hero (submit ke `/cari?q=...` atau visual saja) — tanya Jo sebelum eksekusi.
-- Langkah 2: file referensi "sampel tampilan 3.jpeg" ditemukan di `OneDrive/Documents/00 PROYEK/03 IBID Irfani/sampel tampilan/sampel tampilan 3.jpeg` (working directory tambahan sesi ini) — sudah bisa diakses, tidak lagi blocking.
+# Pertanyaan terbuka (blocking sebelum langkah terkait) - SEMUA SUDAH DIJAWAB
+- Langkah 2: Kontak (nav & footer) → `/tentang`; Masuk → `/admin/login`; Daftarkan Karya → `/ajukan-penerbitan`; search bar hero → submit ke `/cari?q=...`; ikon kaca pembesar header dihapus dari desain (bukan disembunyikan); "Lihat semua karya" → `/cari` tanpa query (browse-all); footer "Bantuan" & "Ikuti Kami" → semua `href="#"` tanpa kecuali.
+- Langkah 2: file referensi "sampel tampilan 3.jpeg" ditemukan di `OneDrive/Documents/00 PROYEK/03 IBID Irfani/sampel tampilan/sampel tampilan 3.jpeg`.
+
+# Catatan penutup
+
+Fase 3 (langkah 0-6) selesai & di-push ke `main`:
+- Langkah 0 — `566fc02`/`d97d0d7` (rencana ini) → `be334f4` (admin manajemen pengajuan)
+- Langkah 1 — `6d37fc1` (quick fix `tampil_pra_terbit`)
+- Langkah 2 — `3238b9d` (beranda publik)
+- Langkah 3 — `65d7ec3` (`GET /cari`)
+- Langkah 4 — `644f2d1` (`GET /verifikasi`)
+- Langkah 5 — `eba15e8` (`GET|POST /ajukan-penerbitan`)
+- Langkah 6 — `e02e8b4` (`GET /tentang`)
+
+237/237 test hijau, Pint bersih di commit terakhir. Temuan teknis penting selama eksekusi:
+- `wherePivot()` di dalam `whereHas()` closure menghasilkan SQL salah (Langkah 3) — diganti `where('karya_orang.role', ...)` langsung.
+- Rule `mimes:` bawaan Laravel (dan finfo/libmagic lokal) tidak bisa membedakan `.docx` modern dari ZIP biasa (Langkah 5) — diganti signature check sendiri (`%PDF-`, magic bytes OLE2, `ZipArchive` + cek `[Content_Types].xml`) di `NaskahUploadService`.
+
+Belum dikerjakan (di luar scope Fase 3, sudah disepakati sejak awal): Fase 2b (import CSV, logo QR opsional).
