@@ -15,11 +15,10 @@ use App\Http\Controllers\Admin\PengajuanController;
 use App\Http\Controllers\Admin\PengajuanStatusController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Publik\BukuController;
+use App\Http\Controllers\Publik\HomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('public.home');
-});
+Route::get('/', [HomeController::class, 'index']);
 
 Route::get('buku/{ibid}', [BukuController::class, 'show'])
     ->middleware('throttle:60,1')
