@@ -11,7 +11,7 @@
             <p class="font-medium text-primary mb-3">Tautan</p>
             <ul class="space-y-2 text-ink/70">
                 <li><a href="{{ url('/') }}" class="hover:text-primary">Beranda</a></li>
-                <li><a href="/cari" class="hover:text-primary">Cari IBID</a></li>
+                <li><a href="{{ route('cari') }}" class="hover:text-primary">Cari IBID</a></li>
                 <li><a href="/tentang" class="hover:text-primary">Tentang</a></li>
                 <li><a href="/tentang" class="hover:text-primary">Kontak</a></li>
             </ul>

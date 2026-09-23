@@ -5,8 +5,8 @@
                class="pb-1 border-b-2 {{ request()->is('/') ? 'border-primary font-medium text-primary' : 'border-transparent text-ink/80 hover:text-primary' }}">
                 Beranda
             </a>
-            <a href="/cari"
-               class="pb-1 border-b-2 {{ request()->is('cari') ? 'border-primary font-medium text-primary' : 'border-transparent text-ink/80 hover:text-primary' }}">
+            <a href="{{ route('cari') }}"
+               class="pb-1 border-b-2 {{ request()->routeIs('cari') ? 'border-primary font-medium text-primary' : 'border-transparent text-ink/80 hover:text-primary' }}">
                 Cari IBID
             </a>
             <a href="/tentang"

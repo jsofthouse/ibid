@@ -23,7 +23,7 @@
             buku memiliki rekam yang jelas dan dapat diverifikasi.
         </p>
 
-        <form method="GET" action="/cari"
+        <form method="GET" action="{{ route('cari') }}"
               class="mt-8 flex items-center gap-3 bg-card border border-line rounded-full p-2 pl-5 max-w-2xl">
             <svg viewBox="0 0 24 24" class="w-5 h-5 text-ink/40 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="11" cy="11" r="7"/>
@@ -37,7 +37,7 @@
             </button>
         </form>
 
-        <a href="/cari" class="inline-flex items-center gap-1 mt-4 text-sm text-primary hover:underline">
+        <a href="{{ route('cari') }}" class="inline-flex items-center gap-1 mt-4 text-sm text-primary hover:underline">
             Lihat semua karya
             <span aria-hidden="true">&rarr;</span>
         </a>

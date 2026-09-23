@@ -15,10 +15,15 @@ use App\Http\Controllers\Admin\PengajuanController;
 use App\Http\Controllers\Admin\PengajuanStatusController;
 use App\Http\Controllers\Admin\ResetPasswordController;
 use App\Http\Controllers\Publik\BukuController;
+use App\Http\Controllers\Publik\CariController;
 use App\Http\Controllers\Publik\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index']);
+
+Route::get('cari', [CariController::class, 'index'])
+    ->middleware('throttle:60,1')
+    ->name('cari');
 
 Route::get('buku/{ibid}', [BukuController::class, 'show'])
     ->middleware('throttle:60,1')
