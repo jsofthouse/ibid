@@ -84,6 +84,37 @@ class BukuPublikControllerTest extends TestCase
         $response->assertDontSee('ISBN-RAHASIA-123');
     }
 
+    public function test_halaman_pra_terbit_dengan_tampil_pra_terbit_nonaktif_hanya_ibid_dan_badge(): void
+    {
+        $karya = $this->buatKaryaBerIbid(['tampil_pra_terbit' => false]);
+
+        $response = $this->get('/buku/'.$karya->ibid_number);
+
+        $response->assertOk();
+        $response->assertSee($karya->ibid_number);
+        $response->assertSee('Dalam Proses Penerbitan');
+        $response->assertSee('noindex', false);
+
+        $response->assertDontSee('Jejak Senja');
+        $response->assertDontSee('Kisah di Ujung Hari');
+        $response->assertDontSee('Pena Rahasia');
+        $response->assertDontSee('Sinopsis rahasia yang cukup panjang untuk diuji.');
+        $response->assertDontSee('og:title', false);
+        $response->assertDontSee('og:image', false);
+    }
+
+    public function test_halaman_pra_terbit_dengan_tampil_pra_terbit_aktif_tetap_lengkap(): void
+    {
+        $karya = $this->buatKaryaBerIbid(['tampil_pra_terbit' => true]);
+
+        $response = $this->get('/buku/'.$karya->ibid_number);
+
+        $response->assertOk();
+        $response->assertSee('Jejak Senja');
+        $response->assertSee('Pena Rahasia');
+        $response->assertSee('og:title', false);
+    }
+
     public function test_halaman_dipublikasikan_menampilkan_data_lengkap(): void
     {
         $karya = $this->buatKaryaBerIbid([

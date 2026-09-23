@@ -38,6 +38,12 @@ class BukuController extends Controller
 
     private function halamanPraTerbit(Karya $karya): View
     {
+        if (! $karya->tampil_pra_terbit) {
+            return view('publik.buku.pra-terbit-minimal', [
+                'ibidNumber' => $karya->ibid_number,
+            ]);
+        }
+
         return view('publik.buku.pra-terbit', [
             'judul' => $karya->judul,
             'subjudul' => $karya->subjudul,
