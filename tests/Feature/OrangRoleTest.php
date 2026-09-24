@@ -41,10 +41,10 @@ class OrangRoleTest extends TestCase
 
         $pilihan = $this->get('/admin/karya/create')->assertOk()->viewData('daftarPilihanOrang');
 
-        $this->assertContains($dewi->id, $pilihan['editor']['sesuai']->pluck('id')->all());
-        $this->assertContains($dewi->id, $pilihan['penerjemah']['sesuai']->pluck('id')->all());
-        $this->assertNotContains($dewi->id, $pilihan['penulis']['sesuai']->pluck('id')->all());
-        $this->assertNotContains($dewi->id, $pilihan['kontributor']['sesuai']->pluck('id')->all());
+        $this->assertContains($dewi->id, $pilihan['editor']->pluck('id')->all());
+        $this->assertContains($dewi->id, $pilihan['penerjemah']->pluck('id')->all());
+        $this->assertNotContains($dewi->id, $pilihan['penulis']->pluck('id')->all());
+        $this->assertNotContains($dewi->id, $pilihan['kontributor']->pluck('id')->all());
     }
 
     public function test_tab_role_dan_pencarian_bisa_digabung(): void
@@ -171,42 +171,71 @@ class OrangRoleTest extends TestCase
         $this->assertDatabaseMissing('orang_role', ['orang_id' => $orang->id, 'role' => 'editor']);
     }
 
-    public function test_picker_menampilkan_semua_orang_dalam_dua_grup_dan_tandai_yang_terpilih(): void
+    public function test_picker_hanya_menampilkan_orang_sesuai_role_dan_yang_sudah_terpasang(): void
     {
         $this->masukSebagaiAdmin();
         $kategori = Kategori::create(['nama' => 'Novel']);
         $editor = Orang::create(['nama' => 'Editor Asli']);
         $editor->sinkronkanRole([PeranOrang::Editor]);
-        $penulis = Orang::create(['nama' => 'Penulis Asli']);
-        $penulis->sinkronkanRole([PeranOrang::Penulis]);
+        $penulisTerpasang = Orang::create(['nama' => 'Penulis Terpasang Jadi Editor']);
+        $penulisTerpasang->sinkronkanRole([PeranOrang::Penulis]);
+        $penulisLain = Orang::create(['nama' => 'Penulis Lain']);
+        $penulisLain->sinkronkanRole([PeranOrang::Penulis]);
         $polos = Orang::create(['nama' => 'Tanpa Role']);
 
         $karya = Karya::create(['judul' => 'Karya Picker', 'kategori_id' => $kategori->id]);
-        $karya->daftarOrang()->attach($penulis->id, ['role' => 'editor']);
+        $karya->daftarOrang()->attach($penulisTerpasang->id, ['role' => 'editor']);
 
         $response = $this->get("/admin/karya/{$karya->id}/edit")
             ->assertOk()
-            ->assertSee('Sesuai tugas Editor')
-            ->assertSee('Orang lain');
+            ->assertDontSee('Orang lain')
+            ->assertDontSee('<optgroup', false);
 
         $pilihan = $response->viewData('daftarPilihanOrang');
 
-        $this->assertSame([$editor->id], $pilihan['editor']['sesuai']->pluck('id')->all());
+        // Editor: declared editor + yang sudah terpasang di karya ini; penulis lain & tanpa role tidak ikut.
         $this->assertEqualsCanonicalizing(
-            [$penulis->id, $polos->id],
-            $pilihan['editor']['lain']->pluck('id')->all(),
+            [$editor->id, $penulisTerpasang->id],
+            $pilihan['editor']->pluck('id')->all(),
         );
         $this->assertEqualsCanonicalizing(
-            [$editor->id, $polos->id],
-            $pilihan['penulis']['lain']->pluck('id')->all(),
+            [$penulisTerpasang->id, $penulisLain->id],
+            $pilihan['penulis']->pluck('id')->all(),
         );
-        $this->assertMatchesRegularExpression('/value="'.$penulis->id.'"\s+selected/', $response->getContent());
+        $this->assertSame([], $pilihan['kontributor']->pluck('id')->all());
+        $this->assertSame([], $pilihan['penerjemah']->pluck('id')->all());
+        $this->assertMatchesRegularExpression(
+            '/value="'.$penulisTerpasang->id.'"\s+selected/',
+            $response->getContent(),
+        );
+    }
+
+    public function test_simpan_karya_tidak_melepas_orang_terpasang_yang_declared_role_nya_sudah_dicabut(): void
+    {
+        $this->masukSebagaiAdmin();
+        $kategori = Kategori::create(['nama' => 'Novel']);
+        $orang = Orang::create(['nama' => 'Editor Dicabut']);
+        $orang->sinkronkanRole([PeranOrang::Penulis]);
+        $karya = Karya::create(['judul' => 'Karya Lama', 'kategori_id' => $kategori->id]);
+        $karya->daftarOrang()->attach($orang->id, ['role' => 'editor']);
+
+        $html = $this->get("/admin/karya/{$karya->id}/edit")->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('/value="'.$orang->id.'"\s+selected/', $html);
+
+        $this->put("/admin/karya/{$karya->id}", [
+            'judul' => 'Karya Lama',
+            'kategori_id' => $kategori->id,
+            'editor' => [$orang->id],
+        ])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('karya_orang', ['karya_id' => $karya->id, 'orang_id' => $orang->id, 'role' => 'editor']);
     }
 
     public function test_pilihan_peran_tetap_terpilih_setelah_validasi_gagal(): void
     {
         $this->masukSebagaiAdmin();
         $orang = Orang::create(['nama' => 'Pilihan Lama']);
+        $orang->sinkronkanRole([PeranOrang::Editor]);
 
         $this->from('/admin/karya/create')
             ->post('/admin/karya', ['judul' => '', 'editor' => [$orang->id]])

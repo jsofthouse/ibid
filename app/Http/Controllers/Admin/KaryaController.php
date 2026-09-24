@@ -112,7 +112,7 @@ class KaryaController extends Controller
         return view('admin.karya.edit', [
             'karya' => $karya,
             'daftarKategori' => Kategori::orderBy('nama')->get(['id', 'nama']),
-            'daftarPilihanOrang' => $this->daftarPilihanOrang(),
+            'daftarPilihanOrang' => $this->daftarPilihanOrang($peranTerpilih),
             'peranTerpilih' => $peranTerpilih,
         ]);
     }
@@ -164,14 +164,16 @@ class KaryaController extends Controller
     }
 
     /**
-     * Pilihan orang per box peran. Soft default: grup 'sesuai' berisi orang
-     * yang declared role-nya (orang_role) cocok dengan peran box, grup 'lain'
-     * berisi sisanya. Semua orang tetap bisa dipilih di tiap box, karena
-     * assignment karya_orang boleh beda dari orang_role.
+     * Pilihan orang per box peran: hanya orang yang declared role-nya
+     * (orang_role) cocok dengan peran box. Orang yang sudah terpasang di karya
+     * ini pada peran tersebut tetap ikut ditampilkan meski declared role-nya
+     * sudah berbeda - kalau tidak, sinkronkanPeran() akan melepas mereka
+     * secara diam-diam saat karya disimpan.
      *
-     * @return array<string, array{sesuai: Collection<int, Orang>, lain: Collection<int, Orang>}>
+     * @param  array<string, array<int, int>>  $peranTerpilih  id orang terpasang per peran
+     * @return array<string, Collection<int, Orang>>
      */
-    private function daftarPilihanOrang(): array
+    private function daftarPilihanOrang(array $peranTerpilih = []): array
     {
         $semuaOrang = Orang::query()
             ->with('daftarRole:id,orang_id,role')
@@ -181,11 +183,12 @@ class KaryaController extends Controller
         $hasil = [];
 
         foreach (PeranOrang::cases() as $peran) {
-            [$sesuai, $lain] = $semuaOrang->partition(
-                fn (Orang $orang) => $orang->daftarRole->contains(fn ($role) => $role->role === $peran),
-            );
+            $idTerpasang = $peranTerpilih[$peran->value] ?? [];
 
-            $hasil[$peran->value] = ['sesuai' => $sesuai->values(), 'lain' => $lain->values()];
+            $hasil[$peran->value] = $semuaOrang->filter(
+                fn (Orang $orang) => in_array($orang->id, $idTerpasang, true)
+                    || $orang->daftarRole->contains(fn ($role) => $role->role === $peran),
+            )->values();
         }
 
         return $hasil;
