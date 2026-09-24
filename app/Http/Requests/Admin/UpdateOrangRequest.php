@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\PeranOrang;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOrangRequest extends FormRequest
 {
@@ -21,6 +23,8 @@ class UpdateOrangRequest extends FormRequest
             'alamat' => ['nullable', 'string', 'max:1000'],
             'kota' => ['nullable', 'string', 'max:255'],
             'provinsi' => ['nullable', 'string', 'max:255'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['string', 'distinct', Rule::enum(PeranOrang::class)],
         ];
     }
 }

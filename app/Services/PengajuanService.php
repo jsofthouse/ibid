@@ -102,6 +102,7 @@ class PengajuanService
             'kota' => $pengajuan->kota,
             'provinsi' => $pengajuan->provinsi,
         ]);
+        $penulis->daftarRole()->firstOrCreate(['role' => PeranOrang::Penulis->value]);
         $karya->daftarOrang()->attach($penulis->id, ['role' => PeranOrang::Penulis->value]);
 
         return $karya;

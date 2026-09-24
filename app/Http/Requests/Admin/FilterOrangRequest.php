@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\PeranOrang;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -20,6 +21,7 @@ class FilterOrangRequest extends FormRequest
     {
         return [
             'cari' => ['nullable', 'string', 'max:255'],
+            'role' => ['nullable', 'string', Rule::enum(PeranOrang::class)],
             'urutkan' => ['nullable', 'string', Rule::in(self::DAFTAR_URUTKAN)],
             'arah' => ['nullable', 'string', Rule::in(self::DAFTAR_ARAH)],
         ];

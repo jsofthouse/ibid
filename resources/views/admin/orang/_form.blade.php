@@ -55,6 +55,31 @@
         @enderror
     </div>
 
+    @php
+        $roleTerpilih = session()->hasOldInput()
+            ? (array) old('roles', [])
+            : (isset($orang) ? $orang->daftarRole->map(fn ($role) => $role->role->value)->all() : []);
+    @endphp
+    <fieldset class="sm:col-span-2">
+        <legend class="block text-sm font-medium mb-1">Tugas</legend>
+        <div class="flex flex-wrap gap-2 gap-x-6">
+            @foreach (\App\Enums\PeranOrang::cases() as $peran)
+                <label class="inline-flex items-center gap-2 text-sm">
+                    <input type="checkbox" name="roles[]" value="{{ $peran->value }}"
+                           @checked(in_array($peran->value, $roleTerpilih, true))
+                           class="rounded border-line">
+                    {{ $peran->label() }}
+                </label>
+            @endforeach
+        </div>
+        @error('roles')
+            <p class="mt-1 text-sm text-red-700">{{ $message }}</p>
+        @enderror
+        @error('roles.*')
+            <p class="mt-1 text-sm text-red-700">{{ $message }}</p>
+        @enderror
+    </fieldset>
+
     <div class="sm:col-span-2">
         <label for="alamat" class="block text-sm font-medium mb-1">Alamat</label>
         <textarea id="alamat" name="alamat" rows="2"

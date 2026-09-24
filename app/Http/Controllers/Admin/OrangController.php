@@ -8,6 +8,8 @@ use App\Http\Requests\Admin\StoreOrangRequest;
 use App\Http\Requests\Admin\UpdateOrangRequest;
 use App\Models\Orang;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class OrangController extends Controller
@@ -19,7 +21,12 @@ class OrangController extends Controller
         $arah = $filter['arah'] ?? 'asc';
 
         $daftarOrang = Orang::query()
+            ->with('daftarRole')
             ->when($filter['cari'] ?? null, fn ($query, $cari) => $query->where('nama', 'like', '%'.$cari.'%'))
+            ->when($filter['role'] ?? null, fn ($query, $role) => $query->whereHas(
+                'daftarRole',
+                fn ($queryRole) => $queryRole->where('role', $role),
+            ))
             ->orderBy($urutkan, $arah)
             ->paginate(25)
             ->withQueryString();
@@ -37,19 +44,31 @@ class OrangController extends Controller
 
     public function store(StoreOrangRequest $request): RedirectResponse
     {
-        Orang::create($request->validated());
+        $data = $request->validated();
+
+        DB::transaction(function () use ($data) {
+            $orang = Orang::create(Arr::except($data, 'roles'));
+            $orang->sinkronkanRole($data['roles'] ?? []);
+        });
 
         return redirect()->route('admin.orang.index')->with('sukses', 'Orang berhasil ditambahkan.');
     }
 
     public function edit(Orang $orang): View
     {
+        $orang->load('daftarRole');
+
         return view('admin.orang.edit', ['orang' => $orang]);
     }
 
     public function update(UpdateOrangRequest $request, Orang $orang): RedirectResponse
     {
-        $orang->update($request->validated());
+        $data = $request->validated();
+
+        DB::transaction(function () use ($orang, $data) {
+            $orang->update(Arr::except($data, 'roles'));
+            $orang->sinkronkanRole($data['roles'] ?? []);
+        });
 
         return redirect()->route('admin.orang.index')->with('sukses', 'Orang berhasil diperbarui.');
     }

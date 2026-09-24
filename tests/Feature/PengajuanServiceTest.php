@@ -124,6 +124,19 @@ class PengajuanServiceTest extends TestCase
         ]);
     }
 
+    public function test_convert_memberi_declared_role_penulis_pada_orang_baru(): void
+    {
+        $pengajuan = $this->buatPengajuan();
+        $pengajuan = $this->service->ubahStatus($pengajuan, StatusPengajuan::Diproses);
+
+        $hasil = $this->service->ubahStatus($pengajuan, StatusPengajuan::Disetujui);
+
+        $penulis = $hasil->fresh()->karya->daftarOrang->first();
+
+        $this->assertDatabaseHas('orang_role', ['orang_id' => $penulis->id, 'role' => 'penulis']);
+        $this->assertDatabaseCount('orang_role', 1);
+    }
+
     public function test_guard_tidak_bisa_convert_ulang_pengajuan_yang_sudah_punya_karya(): void
     {
         $pengajuan = $this->buatPengajuan();

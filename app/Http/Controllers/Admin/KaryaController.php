@@ -14,6 +14,7 @@ use App\Models\Karya;
 use App\Models\Kategori;
 use App\Models\Orang;
 use App\Services\CoverUploadService;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -53,7 +54,7 @@ class KaryaController extends Controller
     {
         return view('admin.karya.create', [
             'daftarKategori' => Kategori::orderBy('nama')->get(['id', 'nama']),
-            'daftarOrang' => Orang::orderBy('nama')->get(['id', 'nama', 'nama_pena']),
+            'daftarPilihanOrang' => $this->daftarPilihanOrang(),
             'karya' => null,
             'peranTerpilih' => [],
         ]);
@@ -111,7 +112,7 @@ class KaryaController extends Controller
         return view('admin.karya.edit', [
             'karya' => $karya,
             'daftarKategori' => Kategori::orderBy('nama')->get(['id', 'nama']),
-            'daftarOrang' => Orang::orderBy('nama')->get(['id', 'nama', 'nama_pena']),
+            'daftarPilihanOrang' => $this->daftarPilihanOrang(),
             'peranTerpilih' => $peranTerpilih,
         ]);
     }
@@ -160,6 +161,34 @@ class KaryaController extends Controller
     private function dataMetadata(array $validated): array
     {
         return collect($validated)->only(self::KOLOM_METADATA)->toArray();
+    }
+
+    /**
+     * Pilihan orang per box peran. Soft default: grup 'sesuai' berisi orang
+     * yang declared role-nya (orang_role) cocok dengan peran box, grup 'lain'
+     * berisi sisanya. Semua orang tetap bisa dipilih di tiap box, karena
+     * assignment karya_orang boleh beda dari orang_role.
+     *
+     * @return array<string, array{sesuai: Collection<int, Orang>, lain: Collection<int, Orang>}>
+     */
+    private function daftarPilihanOrang(): array
+    {
+        $semuaOrang = Orang::query()
+            ->with('daftarRole:id,orang_id,role')
+            ->orderBy('nama')
+            ->get(['id', 'nama', 'nama_pena']);
+
+        $hasil = [];
+
+        foreach (PeranOrang::cases() as $peran) {
+            [$sesuai, $lain] = $semuaOrang->partition(
+                fn (Orang $orang) => $orang->daftarRole->contains(fn ($role) => $role->role === $peran),
+            );
+
+            $hasil[$peran->value] = ['sesuai' => $sesuai->values(), 'lain' => $lain->values()];
+        }
+
+        return $hasil;
     }
 
     private function sinkronkanPeran(Karya $karya, array $data): void

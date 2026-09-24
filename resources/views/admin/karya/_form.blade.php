@@ -160,13 +160,22 @@
     @foreach (\App\Enums\PeranOrang::cases() as $peran)
         <div>
             <label for="peran_{{ $peran->value }}" class="block text-sm font-medium mb-1">{{ $peran->label() }}</label>
+            @php
+                $pilihan = $daftarPilihanOrang[$peran->value];
+                $idTerpilih = array_map('intval', (array) old($peran->value, $peranTerpilih[$peran->value] ?? []));
+            @endphp
             <select id="peran_{{ $peran->value }}" name="{{ $peran->value }}[]" multiple size="5"
                     class="w-full rounded border border-line px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
-                @foreach ($daftarOrang as $orang)
-                    <option value="{{ $orang->id }}"
-                        @selected(in_array($orang->id, old($peran->value, $peranTerpilih[$peran->value] ?? []), true))>
-                        {{ $orang->nama }}{{ $orang->nama_pena ? ' ('.$orang->nama_pena.')' : '' }}
-                    </option>
+                @foreach (['sesuai' => 'Sesuai tugas '.$peran->label(), 'lain' => 'Orang lain'] as $kunciGrup => $labelGrup)
+                    @if ($pilihan[$kunciGrup]->isNotEmpty())
+                        <optgroup label="{{ $labelGrup }}">
+                            @foreach ($pilihan[$kunciGrup] as $orang)
+                                <option value="{{ $orang->id }}" @selected(in_array($orang->id, $idTerpilih, true))>
+                                    {{ $orang->nama }}{{ $orang->nama_pena ? ' ('.$orang->nama_pena.')' : '' }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endif
                 @endforeach
             </select>
             @error($peran->value)
